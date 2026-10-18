@@ -155,3 +155,17 @@ def test_csrf_protection_rejects_post_without_token(client):
         assert response.status_code == 400
     finally:
         app.config["WTF_CSRF_ENABLED"] = False
+
+def test_fake_pdf_content_is_rejected():
+    import io
+    from app import allowed_file_content
+
+    fake_file = io.BytesIO(b"This is not a real PDF")
+
+    class FakeUpload:
+        def __init__(self, stream):
+            self.stream = stream
+
+    upload = FakeUpload(fake_file)
+
+    assert allowed_file_content(upload, "pdf") is False

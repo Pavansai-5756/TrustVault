@@ -1,5 +1,7 @@
+
 import os
 import secrets
+import magic
 from pathlib import Path
 
 from flask import (
@@ -148,11 +150,38 @@ def record_audit(event_type, details="", document_id=None, user_id=None):
         app.logger.exception("Could not write audit event")
 
 
+# -------------------- FILE VALIDATION --------------------
+
 def allowed_file(filename):
+    """Check whether the filename has an allowed extension."""
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
     )
+
+
+def allowed_file_content(file, extension):
+    """Check whether the detected MIME type matches the extension."""
+    allowed_mime_types = {
+        "pdf": {"application/pdf"},
+        "txt": {"text/plain"},
+        "png": {"image/png"},
+        "jpg": {"image/jpeg"},
+        "jpeg": {"image/jpeg"},
+    }
+
+    file_header = file.stream.read(8192)
+    file.stream.seek(0)
+
+    if not file_header:
+        return False
+
+    try:
+        detected_type = magic.from_buffer(file_header, mime=True)
+    except Exception:
+        return False
+
+    return detected_type in allowed_mime_types.get(extension, set())
 
 
 # -------------------- HOME --------------------
@@ -282,6 +311,15 @@ def upload_document():
         return redirect(url_for("dashboard"))
 
     extension = original_name.rsplit(".", 1)[1].lower()
+
+    # Validate file contents before saving the file.
+    if not allowed_file_content(file, extension):
+        flash(
+            "The file content does not match an allowed file type.",
+            "error",
+        )
+        return redirect(url_for("dashboard"))
+
     storage_name = secrets.token_hex(24) + "." + extension
     destination = UPLOAD_FOLDER / storage_name
 
