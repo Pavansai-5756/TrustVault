@@ -115,3 +115,43 @@ def test_audit_page_requires_login(client):
     response = client.get("/audit")
     assert response.status_code == 302
     assert "/login" in response.location
+
+
+def test_failed_login_records_audit_event(client):
+    from app import AuditLog
+
+    response = client.post(
+        "/login",
+        data={
+            "email": "unknown@example.com",
+            "password": "incorrect-password",
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+
+    with app.app_context():
+        event = AuditLog.query.filter_by(
+            event_type="LOGIN_FAILURE"
+        ).first()
+
+        assert event is not None
+        assert event.details == "Invalid login credentials"
+
+
+def test_csrf_protection_rejects_post_without_token(client):
+    app.config["WTF_CSRF_ENABLED"] = True
+
+    try:
+        response = client.post(
+            "/login",
+            data={
+                "email": "unknown@example.com",
+                "password": "incorrect-password",
+            },
+        )
+
+        assert response.status_code == 400
+    finally:
+        app.config["WTF_CSRF_ENABLED"] = False

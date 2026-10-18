@@ -1,4 +1,3 @@
-
 import os
 import secrets
 from pathlib import Path
@@ -42,7 +41,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE") == "1"
+app.config["SESSION_COOKIE_SECURE"] = (
+    os.environ.get("COOKIE_SECURE") == "1"
+)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 Path(app.instance_path).mkdir(parents=True, exist_ok=True)
@@ -127,7 +128,7 @@ def load_user(user_id):
 # -------------------- AUDIT HELPER --------------------
 
 def record_audit(event_type, details="", document_id=None, user_id=None):
-    """Record a security event without storing passwords or file contents."""
+    """Record security events without storing passwords or file contents."""
     try:
         if user_id is None and current_user.is_authenticated:
             user_id = current_user.id
@@ -193,7 +194,6 @@ def register():
             email=email,
             password_hash=generate_password_hash(password),
         )
-
         db.session.add(user)
 
         try:
@@ -237,7 +237,6 @@ def login():
             login_user(user)
             return redirect(url_for("dashboard"))
 
-        # Do not put passwords or submitted email addresses in audit details.
         record_audit(
             "LOGIN_FAILURE",
             "Invalid login credentials",
@@ -259,10 +258,7 @@ def dashboard():
         .all()
     )
 
-    return render_template(
-        "dashboard.html",
-        documents=documents,
-    )
+    return render_template("dashboard.html", documents=documents)
 
 
 # -------------------- DOCUMENT UPLOAD --------------------
@@ -297,7 +293,6 @@ def upload_document():
             storage_name=storage_name,
             owner_id=current_user.id,
         )
-
         db.session.add(document)
         db.session.commit()
 
@@ -325,7 +320,6 @@ def upload_document():
 def download_document(document_id):
     document = db.session.get(Document, document_id)
 
-    # Never rely on a hidden link: verify ownership on every request.
     if document is None or document.owner_id != current_user.id:
         record_audit(
             "DOCUMENT_ACCESS_DENIED",
@@ -353,7 +347,6 @@ def download_document(document_id):
 @app.route("/audit")
 @login_required
 def audit():
-    # Users can see only their own audit records.
     logs = (
         AuditLog.query
         .filter_by(user_id=current_user.id)
@@ -381,18 +374,21 @@ def logout():
 @app.errorhandler(413)
 def file_too_large(error):
     if current_user.is_authenticated:
-        flash("File is too large. The maximum upload size is 5 MB.", "error")
+        flash(
+            "File is too large. The maximum upload size is 5 MB.",
+            "error",
+        )
         return redirect(url_for("dashboard"))
 
     return "File too large. Maximum upload size is 5 MB.", 413
 
 
-# -------------------- INITIALIZE DATABASE --------------------
+# -------------------- DATABASE INITIALIZATION --------------------
 
-with app.app_context():
-    db.create_all()
-
-
+# Do not create database tables at import time.
+# Tests can configure their own database before the first DB access.
 if __name__ == "__main__":
-    # Debug mode is for local development only.
+    with app.app_context():
+        db.create_all()
+
     app.run(debug=True)
