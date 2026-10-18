@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#102b50">
+    <meta name="description" content="TrustVault secure document sharing.">
+    <title>{% block title %}TrustVault | Secure Document Sharing{% endblock %}</title>
+
+    <style>
+        :root {
+            --navy: #102b50;
+            --blue: #1677ed;
+            --cyan: #13b8d5;
+            --background: #f3f8ff;
+            --text: #172d4f;
+            --muted: #61738e;
+            --border: #dce8f7;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(ellipse at 85% 20%, #dff2ff, transparent 35%),
+                var(--background);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--navy);
+            color: white;
+            box-shadow: 0 4px 20px #102b5020;
+        }
+
+        .nav-inner {
+            max-width: 1180px;
+            min-height: 78px;
+            margin: auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+        }
+
+        .brand-name { color: #47c4ff; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 10px 13px;
+            color: #e0ebfa;
+            text-decoration: none;
+            border-radius: 9px;
+            transition: background .2s, color .2s, transform .2s;
+        }
+
+        .nav-link:hover {
+            background: #ffffff16;
+            color: #70d6ff;
+            transform: translateY(-2px);
+        }
+
+        main {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 45px 24px;
+            flex: 1;
+            animation: enter .5s ease;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            align-items: center;
+            gap: 35px;
+            padding: 20px 0 45px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 14px;
+            color: #125cb8;
+            background: #dceeff;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin: 22px 0 14px;
+            font-size: clamp(38px, 5vw, 62px);
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #1677ed, #12b8d5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lead { color: var(--muted); font-size: 18px; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            padding: 18px;
+            background: #ffffffbd;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px #194b821a;
+        }
+
+        .feature-icon { font-size: 25px; }
+        .feature h3 { margin: 7px 0 3px; }
+        .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+
+        .content-card, .dashboard-card {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(22px, 5vw, 35px);
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 12px 35px #194b821a;
+            margin-bottom: 22px;
+        }
+
+        .content-card::before, .dashboard-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+        }
+
+        .form-group { margin: 18px 0; }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cbd8e8;
+            border-radius: 9px;
+            font: inherit;
+        }
+
+        input:focus {
+            outline: 2px solid #1677ed50;
+            border-color: var(--blue);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 11px 20px;
+            border: 0;
+            border-radius: 10px;
+            color: white;
+            background: linear-gradient(100deg, #176de0, #138fda);
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px #1677ed35;
+        }
+
+        .btn-danger { background: #dc2626; }
+        .btn-secondary { background: #52647d; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+        .footer {
+            padding: 22px;
+            text-align: center;
+            color: #d8e6f8;
+            background: var(--navy);
+        }
+
+        .footer p { margin: 0; }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .document-empty {
+            text-align: center;
+            padding: 28px 12px;
+            border: 1px dashed #9aacc3;
+            border-radius: 12px;
+        }
+
+        @keyframes enter {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 760px) {
+            .nav-inner { flex-direction: column; }
+            .nav-links { justify-content: center; }
+            main { padding: 28px 16px; }
+            .hero { grid-template-columns: 1fr; }
+            .features { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="navbar">
+    <div class="nav-inner">
+        <a class="brand" href="{{ url_for('home') }}">
+            <span class="brand-icon">🔐</span>
+            <span>Trust<span class="brand-name">Vault</span></span>
+        </a>
+
+        <nav class="nav-links" aria-label="Main navigation">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    {% block content %}
+    <section class="hero">
+        <div>
+            <span class="eyebrow">🛡️ Secure Document Management</span>
+            <h1>Welcome to<br><span class="gradient-text">TrustVault</span></h1>
+            <p class="lead">
+                Your secure space to store, manage and share important
+                documents with controlled access and an audit trail.
+            </p>
+
+            <div class="features">
+                <article class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure</h3>
+                    <p>Access controls protect your documents.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Simple</h3>
+                    <p>A clean experience for everyday tasks.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Accountable</h3>
+                    <p>Designed for traceable document activity.</p>
+                </article>
+            </div>
+        </div>
+
+        <div class="content-card" style="text-align:center;padding:60px 20px;">
+            <div style="font-size:64px;">📁</div>
+            <h2>Your files. Your control.</h2>
+            <p class="lead">
+                A clear workspace for document sharing and permission management.
+            </p>
+            <a class="btn" href="{{ url_for('register') }}">Get Started</a>
+        </div>
+    </section>
+    {% endblock %}
+</main>
+
+<footer class="footer">
+    <p>🔐 TrustVault · Secure today, safer tomorrow.</p>
+</footer>
+</body>
+</html>
