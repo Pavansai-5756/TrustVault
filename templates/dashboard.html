@@ -20,6 +20,7 @@
     <form method="POST"
           action="{{ url_for('upload_document') }}"
           enctype="multipart/form-data">
+
         <input type="hidden" name="csrf_token"
                value="{{ csrf_token() }}">
 
@@ -32,7 +33,9 @@
             required
         >
 
-        <button class="button" type="submit">Upload Document</button>
+        <button class="button" type="submit">
+            Upload Document
+        </button>
     </form>
 </section>
 
@@ -56,7 +59,9 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p class="muted">You have not uploaded any documents yet.</p>
+        <p class="muted">
+            You have not uploaded any documents yet.
+        </p>
     {% endif %}
 </section>
 
@@ -68,13 +73,23 @@
 
     <h2>Audit Trail</h2>
     <p class="muted">
-        Audit logging is the next feature to implement.
+        Review security events associated with your account.
     </p>
 
-    <form method="POST" action="{{ url_for('logout') }}">
+    <a class="button" href="{{ url_for('audit') }}">
+        View Audit Trail
+    </a>
+
+    <form method="POST"
+          action="{{ url_for('logout') }}"
+          style="margin-top:24px;">
+
         <input type="hidden" name="csrf_token"
                value="{{ csrf_token() }}">
-        <button class="button secondary" type="submit">Logout</button>
+
+        <button class="button secondary" type="submit">
+            Logout
+        </button>
     </form>
 </section>
 {% endblock %}

@@ -1,0 +1,54 @@
+
+{% extends "base.html" %}
+
+{% block title %}Audit Trail | TrustVault{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Security Audit Trail</h1>
+
+    <p class="muted">
+        Recent security events associated with your account.
+    </p>
+
+    {% if logs %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:12px;">Time</th>
+                        <th style="text-align:left; padding:12px;">Event</th>
+                        <th style="text-align:left; padding:12px;">Document ID</th>
+                        <th style="text-align:left; padding:12px;">Details</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for log in logs %}
+                        <tr>
+                            <td style="padding:12px;">
+                                {{ log.created_at }}
+                            </td>
+                            <td style="padding:12px;">
+                                {{ log.event_type }}
+                            </td>
+                            <td style="padding:12px;">
+                                {{ log.document_id or "-" }}
+                            </td>
+                            <td style="padding:12px;">
+                                {{ log.details }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No audit events have been recorded for your account yet.</p>
+    {% endif %}
+
+    <p style="margin-top:24px;">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </p>
+</section>
+{% endblock %}
