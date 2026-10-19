@@ -45,7 +45,6 @@
             overflow-x: hidden;
         }
 
-        /* Decorative background circles */
         .decoration {
             position: fixed;
             width: 210px;
@@ -68,13 +67,11 @@
             animation-delay: -4s;
         }
 
-        /* Main login card */
         .login-wrapper {
             display: grid;
             grid-template-columns: 1fr 0.95fr;
             width: min(1120px, 100%);
-            height: min(760px, calc(100vh - 48px));
-            min-height: 0;
+            min-height: 680px;
             border: 1px solid var(--border);
             border-radius: 22px;
             overflow: hidden;
@@ -86,12 +83,13 @@
         }
 
         /* LEFT PANEL */
+
         .welcome-panel {
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 78px 40px 25px;
+            padding: 85px 40px 30px;
             overflow: hidden;
             background:
                 radial-gradient(ellipse at 80% 20%, rgba(52, 211, 153, 0.16), transparent 45%),
@@ -200,7 +198,6 @@
             line-height: 1.8;
         }
 
-        /* Animated security illustration */
         .illustration {
             min-height: 130px;
             margin: 12px 0;
@@ -251,7 +248,6 @@
             animation: shieldFloat 3.5s ease-in-out infinite;
         }
 
-        /* Security feature strip */
         .feature-strip {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -295,12 +291,13 @@
         }
 
         /* RIGHT PANEL */
+
         .form-panel {
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px clamp(25px, 3.5vw, 48px);
+            padding: 65px clamp(25px, 3.5vw, 48px) 40px;
             background: linear-gradient(165deg, #102b22, #0b211a);
             min-width: 0;
         }
@@ -337,7 +334,8 @@
             line-height: 1.6;
         }
 
-        /* Flask messages */
+        /* Flask flash messages */
+
         .message {
             padding: 10px 12px;
             margin-bottom: 14px;
@@ -373,7 +371,8 @@
             border: 1px solid #075985;
         }
 
-        /* Input fields */
+        /* Form inputs */
+
         .form-group {
             margin-bottom: 17px;
         }
@@ -464,6 +463,7 @@
         }
 
         /* Login button */
+
         .login-button {
             width: 100%;
             min-height: 48px;
@@ -559,6 +559,7 @@
         }
 
         /* Animations */
+
         @keyframes pageEnter {
             from {
                 opacity: 0;
@@ -589,18 +590,23 @@
         }
 
         @keyframes rotateOrbit {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        /* Short desktop screens: prevent clipping */
+        /* Short desktop screens */
+
         @media (max-height: 750px) and (min-width: 851px) {
             body {
                 padding: 16px;
             }
 
             .login-wrapper {
-                height: calc(100vh - 32px);
+                min-height: 0;
             }
 
             .welcome-panel {
@@ -705,10 +711,10 @@
             }
         }
 
-        /* Tablet and mobile: allow natural scrolling */
+        /* Tablet and mobile */
+
         @media (max-width: 850px) {
             body {
-                min-height: 100vh;
                 padding: 18px;
                 align-items: flex-start;
             }
@@ -716,7 +722,6 @@
             .login-wrapper {
                 grid-template-columns: 1fr;
                 width: min(540px, 100%);
-                height: auto;
                 min-height: 0;
                 margin: auto;
             }
@@ -842,6 +847,7 @@
     <main class="login-wrapper">
 
         <!-- LEFT PANEL -->
+
         <section class="welcome-panel">
 
             <div class="brand">
@@ -897,10 +903,10 @@
                     </div>
                 </div>
             </div>
-
         </section>
 
         <!-- RIGHT PANEL -->
+
         <section class="form-panel">
 
             <div class="top-note">
@@ -913,6 +919,7 @@
             </header>
 
             <!-- Flask flash messages -->
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -923,9 +930,10 @@
                 {% endif %}
             {% endwith %}
 
+            <!-- Login form -->
+
             <form method="POST" action="{{ url_for('login') }}">
 
-                <!-- CSRF protection -->
                 <input
                     type="hidden"
                     name="csrf_token"
@@ -937,12 +945,14 @@
 
                     <div class="input-wrap">
                         <span class="input-icon" aria-hidden="true">✉</span>
+
                         <input
                             type="email"
                             id="email"
                             name="email"
                             placeholder="Enter your email address"
                             autocomplete="email"
+                            maxlength="254"
                             required
                         >
                     </div>
@@ -953,6 +963,7 @@
 
                     <div class="input-wrap">
                         <span class="input-icon" aria-hidden="true">♙</span>
+
                         <input
                             type="password"
                             id="password"
@@ -961,6 +972,7 @@
                             autocomplete="current-password"
                             required
                         >
+
                         <button
                             class="password-toggle"
                             type="button"
@@ -971,8 +983,12 @@
                     </div>
                 </div>
 
+                <!-- Real password recovery route -->
+
                 <div class="forgot-row">
-                    <a href="#" id="forgotPassword">Forgot password?</a>
+                    <a href="{{ url_for('forgot_password') }}">
+                        Forgot password?
+                    </a>
                 </div>
 
                 <button class="login-button" type="submit">
@@ -1003,6 +1019,7 @@
 
     <script>
         // Show or hide the password
+
         const passwordInput = document.getElementById("password");
         const togglePassword = document.getElementById("togglePassword");
 
@@ -1016,19 +1033,9 @@
                 "aria-label",
                 isHidden ? "Hide password" : "Show password"
             );
-        });
 
-        // Placeholder until a real password-reset route is implemented
-        document.getElementById("forgotPassword").addEventListener(
-            "click",
-            function (event) {
-                event.preventDefault();
-                alert(
-                    "Password recovery is not available yet. " +
-                    "Please contact your administrator."
-                );
-            }
-        );
+            this.textContent = isHidden ? "◎" : "◉";
+        });
     </script>
 </body>
 </html>
