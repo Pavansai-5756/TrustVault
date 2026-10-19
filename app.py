@@ -421,12 +421,12 @@ def file_too_large(error):
     return "File too large. Maximum upload size is 5 MB.", 413
 
 
+
 # -------------------- DATABASE INITIALIZATION --------------------
 
-# Do not create database tables at import time.
-# Tests can configure their own database before the first DB access.
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+with app.app_context():
+    db.create_all()
 
+
+if __name__ == "__main__":
     app.run(debug=True)
