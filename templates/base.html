@@ -4,254 +4,774 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}TrustVault{% endblock %}</title>
 
     <style>
         :root {
-            --navy: #10213b;
-            --blue: #2563eb;
-            --cyan: #06b6d4;
-            --background: #f4f7fb;
-            --text: #243247;
-            --muted: #64748b;
-            --white: #ffffff;
+            --bg: #071b14;
+            --surface: #0d281e;
+            --surface-light: #14392b;
+            --lime: #c4f35b;
+            --green: #34d399;
+            --gold: #facc15;
+            --white: #f0fdf4;
+            --muted: #a7c4b5;
+            --border: rgba(196, 243, 91, 0.20);
         }
 
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: var(--background);
-            color: var(--text);
+        html {
+            scroll-behavior: smooth;
         }
 
-        nav {
-            background: var(--navy);
-            color: white;
-            padding: 18px 7%;
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(
+                    circle at 10% 0%,
+                    rgba(52, 211, 153, 0.09),
+                    transparent 35%
+                ),
+                var(--bg);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* NAVIGATION */
+
+        .navbar {
+            width: 100%;
+            background: rgba(7, 27, 20, 0.94);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
         .brand {
-            color: white;
-            font-size: 23px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        nav .links {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        nav .links a {
-            color: white;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        nav .links a:hover {
-            color: #67e8f9;
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--lime);
+            color: var(--bg);
+            font-size: 23px;
         }
+
+        .brand-name span {
+            color: var(--lime);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links a,
+        .nav-links button {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 9px 13px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: var(--lime);
+            background: var(--surface-light);
+        }
+
+        .nav-links .nav-primary {
+            background: var(--lime);
+            color: var(--bg);
+            font-weight: 700;
+        }
+
+        .nav-links .nav-primary:hover {
+            background: var(--green);
+            color: var(--bg);
+        }
+
+        /* MAIN CONTENT */
 
         main {
-            width: min(1100px, 90%);
-            margin: 45px auto;
-            min-height: 65vh;
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 35px 24px 60px;
+            animation: fadeIn 0.5s ease;
         }
 
-        .hero, .card, .form-card {
-            background: var(--white);
-            border-radius: 18px;
-            padding: 32px;
-            box-shadow: 0 8px 25px rgba(16, 33, 59, 0.07);
-        }
+        /* HOME PAGE HERO */
 
         .hero {
-            text-align: center;
-            padding: 65px 25px;
+            position: relative;
+            overflow: hidden;
+            padding: 75px 45px;
+            margin: 15px 0 60px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background:
+                radial-gradient(
+                    circle at 85% 15%,
+                    rgba(196, 243, 91, 0.13),
+                    transparent 32%
+                ),
+                linear-gradient(135deg, #0d281e, #102f23);
         }
 
-        h1 {
-            color: var(--navy);
+        .hero-content {
+            max-width: 760px;
+            position: relative;
+            z-index: 1;
         }
 
-        .hero p, .muted {
-            color: var(--muted);
-            line-height: 1.7;
-        }
-
-        .button {
+        .eyebrow {
             display: inline-block;
-            background: var(--blue);
-            color: white;
-            padding: 12px 20px;
-            border: 0;
-            border-radius: 9px;
+            padding: 7px 13px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--lime);
+            background: rgba(196, 243, 91, 0.06);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 62px);
+            line-height: 1.12;
+            letter-spacing: -2px;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 span {
+            color: var(--lime);
+        }
+
+        .hero p {
+            max-width: 620px;
+            margin-bottom: 30px;
+            color: var(--muted);
+            font-size: 17px;
+            line-height: 1.9;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 21px;
+            border-radius: 11px;
             text-decoration: none;
+            font-weight: 700;
+            border: 1px solid transparent;
             cursor: pointer;
-            font-size: 15px;
+            transition: transform 0.2s ease,
+                        background 0.2s ease,
+                        border-color 0.2s ease;
         }
 
-        .button:hover {
-            background: #1d4ed8;
+        .btn:hover {
+            transform: translateY(-3px);
         }
 
-        .secondary {
-            background: var(--navy);
+        .btn-primary {
+            background: var(--lime);
+            color: var(--bg);
         }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-top: 25px;
+        .btn-primary:hover {
+            background: var(--green);
         }
 
-        .form-card {
-            max-width: 480px;
-            margin: 0 auto;
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border-color: var(--border);
         }
 
-        label {
-            display: block;
-            margin: 16px 0 7px;
-            font-weight: bold;
+        .btn-secondary:hover {
+            border-color: var(--lime);
+            background: var(--surface-light);
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 15px;
+        /* FEATURES */
+
+        .features-section {
+            margin: 45px 0;
         }
 
-        input:focus {
-            outline: 2px solid var(--cyan);
-            border-color: transparent;
-        }
-
-        .form-card .button {
-            width: 100%;
-            margin-top: 22px;
-        }
-
-        .message {
-            padding: 12px 16px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background: #e0f2fe;
-        }
-
-        footer {
-            background: var(--navy);
-            color: white;
-            padding: 24px;
+        .section-heading {
             text-align: center;
+            max-width: 680px;
+            margin: 0 auto 30px;
+        }
+
+        .section-heading .eyebrow {
+            margin-bottom: 12px;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(27px, 4vw, 38px);
+            margin-bottom: 12px;
+        }
+
+        .section-heading h2 span {
+            color: var(--lime);
+        }
+
+        .section-heading p {
+            color: var(--muted);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .feature-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-height: 255px;
+            padding: 27px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            background: var(--surface);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease,
+                        border-color 0.25s ease,
+                        box-shadow 0.25s ease,
+                        background 0.25s ease;
+        }
+
+        .feature-card::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            right: -60px;
+            bottom: -60px;
+            border-radius: 50%;
+            background: rgba(196, 243, 91, 0.07);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-7px);
+            border-color: var(--lime);
+            background: #103024;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.22);
+        }
+
+        .feature-card:hover::after {
+            transform: scale(2);
+        }
+
+        .feature-icon {
+            display: grid;
+            place-items: center;
+            width: 58px;
+            height: 58px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            background: rgba(196, 243, 91, 0.10);
+            border: 1px solid var(--border);
+            font-size: 29px;
+        }
+
+        .feature-card h3 {
+            color: var(--lime);
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+
+        .feature-link {
+            margin-top: auto;
+            color: var(--gold);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* SECURITY BANNER */
+
+        .security-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-top: 55px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: linear-gradient(
+                110deg,
+                rgba(52, 211, 153, 0.08),
+                rgba(196, 243, 91, 0.04)
+            );
+        }
+
+        .security-banner h2 {
+            margin-bottom: 8px;
+            font-size: 23px;
+        }
+
+        .security-banner p {
+            color: var(--muted);
+        }
+
+        .security-mark {
+            flex-shrink: 0;
+            font-size: 48px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* FLASH MESSAGES */
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 13px 16px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface);
+            color: var(--white);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .footer span {
+            color: var(--lime);
+            font-weight: 700;
+        }
+
+        /* ACCESSIBILITY */
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 4px;
+        }
+
+        /* ANIMATIONS */
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* RESPONSIVE DESIGN */
+
+        @media (max-width: 850px) {
+            .features-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero {
+                padding: 55px 30px;
+            }
+
+            .security-banner {
+                align-items: flex-start;
+            }
         }
 
         @media (max-width: 600px) {
-            nav {
-                padding: 18px 5%;
+            .nav-container {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 14px 18px;
+            }
+
+            .nav-links {
+                width: 100%;
+                gap: 5px;
+            }
+
+            .nav-links a,
+            .nav-links button {
+                padding: 8px 10px;
+                font-size: 13px;
             }
 
             main {
-                margin: 25px auto;
+                padding: 22px 16px 40px;
             }
 
-            .hero, .card, .form-card {
-                padding: 22px;
+            .hero {
+                padding: 40px 23px;
+                margin-bottom: 40px;
+                border-radius: 20px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: 220px;
+            }
+
+            .security-banner {
+                flex-direction: column;
+                padding: 23px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 
 <body>
-    <nav>
-        <a class="brand" href="{{ url_for('home') }}">TrustVault</a>
 
-        <div class="links">
-            <a href="{{ url_for('home') }}">Home</a>
+    <!-- NAVIGATION BAR -->
 
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <form method="POST" action="{{ url_for('logout') }}"
-                      style="display:inline; margin:0;">
-                    <input type="hidden" name="csrf_token"
-                           value="{{ csrf_token() }}">
-                    <button type="submit"
-                            style="background:none;border:0;color:white;cursor:pointer;font-size:16px;">
-                        Logout
-                    </button>
-                </form>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
-            {% endif %}
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a class="brand" href="{{ url_for('home') }}">
+                <span class="brand-icon">🛡️</span>
+                <span class="brand-name">Trust<span>Vault</span></span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main navigation">
+
+                {% if current_user.is_authenticated %}
+
+                    <a href="{{ url_for('dashboard') }}">My Vault</a>
+
+                    <a href="{{ url_for('audit') }}">Activity History</a>
+
+                    <form action="{{ url_for('logout') }}"
+                          method="POST"
+                          style="display:inline;">
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <button type="submit">Logout</button>
+                    </form>
+
+                {% else %}
+
+                    <a href="{{ url_for('login') }}">Login</a>
+
+                    <a class="nav-primary"
+                       href="{{ url_for('register') }}">
+                        Get Started
+                    </a>
+
+                {% endif %}
+
+            </nav>
         </div>
-    </nav>
+    </header>
+
+    <!-- PAGE CONTENT -->
 
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="message" role="status">
-                    {{ message }}
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            {% endif %}
         {% endwith %}
 
         {% block content %}
+
+            <!-- HOME PAGE -->
+
             <section class="hero">
-                <h1>Secure Document Sharing</h1>
-                <p>
-                    Welcome to TrustVault, a secure space designed to help
-                    users manage and share documents with controlled access.
-                </p>
-                <a class="button" href="{{ url_for('register') }}">
-                    Get Started
-                </a>
-                <a class="button secondary" href="{{ url_for('login') }}">
-                    Sign In
-                </a>
+                <div class="hero-content">
+
+                    <span class="eyebrow">
+                        Your Documents. Your Control.
+                    </span>
+
+                    <h1>
+                        Your Personal Space for
+                        <span>Secure Documents.</span>
+                    </h1>
+
+                    <p>
+                        Welcome to TrustVault, a secure document management
+                        application. Store your important files, access them
+                        through your account, and review activity history
+                        from one simple dashboard.
+                    </p>
+
+                    <div class="hero-actions">
+
+                        {% if current_user.is_authenticated %}
+
+                            <a class="btn btn-primary"
+                               href="{{ url_for('dashboard') }}">
+                                Open My Vault →
+                            </a>
+
+                            <a class="btn btn-secondary"
+                               href="{{ url_for('audit') }}">
+                                View Activity
+                            </a>
+
+                        {% else %}
+
+                            <a class="btn btn-primary"
+                               href="{{ url_for('register') }}">
+                                Create Your Account →
+                            </a>
+
+                            <a class="btn btn-secondary"
+                               href="{{ url_for('login') }}">
+                                Sign In
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+                </div>
             </section>
 
-            <section class="features">
-                <article class="card">
-                    <h2>Security First</h2>
-                    <p class="muted">
-                        Protect accounts using password hashing and
-                        authenticated sessions.
-                    </p>
-                </article>
+            <!-- FEATURE CARDS -->
 
-                <article class="card">
-                    <h2>Controlled Sharing</h2>
-                    <p class="muted">
-                        Build toward sharing documents with explicitly
-                        authorized users.
-                    </p>
-                </article>
+            <section class="features-section">
 
-                <article class="card">
-                    <h2>Audit Trail</h2>
-                    <p class="muted">
-                        Build a record of important actions for later review.
+                <div class="section-heading">
+                    <span class="eyebrow">Simple. Secure. Organized.</span>
+
+                    <h2>
+                        Everything You Need in
+                        <span>One Vault</span>
+                    </h2>
+
+                    <p>
+                        Click any feature below to access the relevant
+                        section of TrustVault.
                     </p>
-                </article>
+                </div>
+
+                <div class="features-grid">
+
+                    <!-- ORGANIZE DOCUMENTS -->
+
+                    <a class="feature-card"
+                       href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}">
+
+                        <div class="feature-icon">📁</div>
+
+                        <h3>Organize Documents</h3>
+
+                        <p>
+                            Upload and manage your important documents
+                            from one organized dashboard.
+                        </p>
+
+                        <span class="feature-link">
+                            {% if current_user.is_authenticated %}
+                                Open My Documents →
+                            {% else %}
+                                Sign in to continue →
+                            {% endif %}
+                        </span>
+
+                    </a>
+
+                    <!-- ACCOUNT-BASED ACCESS -->
+
+                    <a class="feature-card"
+                       href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}">
+
+                        <div class="feature-icon">🔐</div>
+
+                        <h3>Account-Based Access</h3>
+
+                        <p>
+                            Sign in to your account to access your
+                            documents with owner-based permissions.
+                        </p>
+
+                        <span class="feature-link">
+                            {% if current_user.is_authenticated %}
+                                Open Your Account →
+                            {% else %}
+                                Sign in to continue →
+                            {% endif %}
+                        </span>
+
+                    </a>
+
+                    <!-- ACTIVITY HISTORY -->
+
+                    <a class="feature-card"
+                       href="{{ url_for('audit') if current_user.is_authenticated else url_for('login') }}">
+
+                        <div class="feature-icon">📋</div>
+
+                        <h3>Activity History</h3>
+
+                        <p>
+                            Review available security audit events
+                            and monitor activities recorded by the app.
+                        </p>
+
+                        <span class="feature-link">
+                            {% if current_user.is_authenticated %}
+                                View Activity History →
+                            {% else %}
+                                Sign in to continue →
+                            {% endif %}
+                        </span>
+
+                    </a>
+
+                </div>
             </section>
+
+            <!-- SECURITY SECTION -->
+
+            <section class="security-banner">
+
+                <div>
+                    <h2>🛡️ Security Is a Priority</h2>
+
+                    <p>
+                        TrustVault uses account authentication and
+                        document ownership checks to help protect
+                        your files.
+                    </p>
+                </div>
+
+                <div class="security-mark">🔒</div>
+
+            </section>
+
         {% endblock %}
+
     </main>
 
-    <footer>
-        TrustVault — Secure Document Sharing
+    <!-- FOOTER -->
+
+    <footer class="footer">
+        <p>
+            <span>TrustVault</span>
+            &copy; {{ now_year if now_year is defined else 2026 }}.
+            Secure document management.
+        </p>
     </footer>
+
 </body>
 </html>

@@ -1,53 +1,493 @@
 
 {% extends "base.html" %}
 
-{% block title %}Register | TrustVault{% endblock %}
+{% block title %}Create Account | TrustVault{% endblock %}
 
 {% block content %}
-<section class="form-card">
-    <h1>Create Account</h1>
-    <p class="muted">Create your TrustVault account to get started.</p>
+<style>
+    .register-page {
+        width: min(1200px, 100%);
+        min-height: 650px;
+        margin: 25px auto;
+        padding: 25px;
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        overflow: hidden;
+        border: 1px solid rgba(196, 243, 91, 0.22);
+        border-radius: 24px;
+        background: #0b2119;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22);
+        animation: registerEnter 0.5s ease both;
+    }
 
-    <form method="POST" action="{{ url_for('register') }}">
-        <input type="hidden" name="csrf_token"
-               value="{{ csrf_token() }}">
+    .register-side {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 35px;
+        padding: 35px;
+        overflow: hidden;
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 20% 85%, rgba(52, 211, 153, 0.18), transparent 38%),
+            linear-gradient(145deg, #143c2d, #0b2119);
+    }
 
-        <label for="name">Full Name</label>
-        <input
-            type="text"
-            id="name"
-            name="name"
-            maxlength="100"
-            autocomplete="name"
-            required
-        >
+    .register-side::before,
+    .register-side::after {
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        border: 1px solid rgba(196, 243, 91, 0.12);
+        border-radius: 50%;
+        content: "";
+        pointer-events: none;
+    }
 
-        <label for="email">Email Address</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            maxlength="254"
-            autocomplete="email"
-            required
-        >
+    .register-side::before {
+        top: -120px;
+        right: -100px;
+    }
 
-        <label for="password">Password</label>
-        <input
-            type="password"
-            id="password"
-            name="password"
-            minlength="12"
-            autocomplete="new-password"
-            required
-        >
+    .register-side::after {
+        bottom: -130px;
+        left: -110px;
+    }
 
-        <button class="button" type="submit">Create Account</button>
-    </form>
+    .register-brand {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-    <p class="muted">
-        Already registered?
-        <a href="{{ url_for('login') }}">Sign in</a>
-    </p>
-</section>
+    .register-brand-icon {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        flex-shrink: 0;
+        border: 1px solid rgba(196, 243, 91, 0.4);
+        border-radius: 15px;
+        background: rgba(196, 243, 91, 0.07);
+        font-size: 27px;
+    }
+
+    .register-brand-name {
+        color: #f0fdf4;
+        font-size: 25px;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .register-brand-name span {
+        color: #c4f35b;
+    }
+
+    .register-brand small {
+        display: block;
+        margin-top: 3px;
+        color: #a7c4b5;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.7px;
+    }
+
+    .register-side-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .register-eyebrow {
+        margin-bottom: 13px;
+        color: #c4f35b;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 1.6px;
+    }
+
+    .register-side h1 {
+        margin-bottom: 18px;
+        color: #f0fdf4;
+        font-size: clamp(32px, 3.2vw, 45px);
+        font-weight: 900;
+        line-height: 1.12;
+        letter-spacing: -1.5px;
+    }
+
+    .register-side h1 span {
+        color: #c4f35b;
+    }
+
+    .register-side-content > p {
+        color: #a7c4b5;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    .register-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 19px;
+        margin-top: 30px;
+    }
+
+    .register-step {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        color: #a7c4b5;
+        font-size: 12px;
+    }
+
+    .register-step-number {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border: 1px solid rgba(196, 243, 91, 0.25);
+        border-radius: 50%;
+        background: rgba(196, 243, 91, 0.06);
+        color: #c4f35b;
+        font-weight: 800;
+    }
+
+    .register-step strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #f0fdf4;
+        font-size: 12px;
+    }
+
+    .register-side-footer {
+        position: relative;
+        z-index: 1;
+        padding-top: 18px;
+        border-top: 1px solid rgba(196, 243, 91, 0.16);
+        color: #a7c4b5;
+        font-size: 11px;
+    }
+
+    /* Registration form */
+    .register-form-side {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(25px, 5vw, 60px);
+    }
+
+    .register-form-header {
+        margin-bottom: 28px;
+    }
+
+    .register-form-header .register-eyebrow {
+        margin-bottom: 10px;
+    }
+
+    .register-form-header h2 {
+        margin-bottom: 9px;
+        color: #34d399;
+        font-size: clamp(28px, 3vw, 38px);
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .register-form-header p {
+        color: #a7c4b5;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .register-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .register-field label {
+        color: #e8f5ec;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .register-field input {
+        width: 100%;
+        min-height: 49px;
+        padding: 13px 15px;
+        border: 1px solid rgba(163, 230, 53, 0.2);
+        border-radius: 10px;
+        outline: none;
+        background: #e8f0ff;
+        color: #12251b;
+        font-size: 13px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .register-field input::placeholder {
+        color: #718178;
+    }
+
+    .register-field input:focus {
+        border-color: #34d399;
+        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+    }
+
+    .register-field input:focus-visible {
+        outline: 2px solid #c4f35b;
+        outline-offset: 2px;
+    }
+
+    .register-field-hint {
+        color: #91ad9d;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .register-submit {
+        width: 100%;
+        min-height: 53px;
+        margin-top: 5px;
+        border: none;
+        border-radius: 11px;
+        background: linear-gradient(100deg, #10a875, #34d399);
+        color: #062116;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .register-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(52, 211, 153, 0.17);
+    }
+
+    .register-submit:active {
+        transform: scale(0.99);
+    }
+
+    .register-login-link {
+        margin-top: 22px;
+        color: #a7c4b5;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .register-login-link a {
+        color: #c4f35b;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .register-login-link a:hover {
+        text-decoration: underline;
+    }
+
+    .register-security-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 25px;
+        padding: 13px;
+        border: 1px solid rgba(163, 230, 53, 0.15);
+        border-radius: 11px;
+        background: rgba(163, 230, 53, 0.04);
+        color: #a7c4b5;
+        font-size: 10px;
+        line-height: 1.8;
+    }
+
+    .register-security-note span {
+        color: #c4f35b;
+        font-size: 15px;
+    }
+
+    @keyframes registerEnter {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 800px) {
+        .register-page {
+            grid-template-columns: 1fr;
+            margin: 15px auto;
+            padding: 13px;
+        }
+
+        .register-side {
+            gap: 25px;
+            padding: 25px;
+        }
+
+        .register-side h1 {
+            font-size: 34px;
+        }
+
+        .register-steps {
+            gap: 12px;
+        }
+
+        .register-side-footer {
+            margin-top: 5px;
+        }
+
+        .register-form-side {
+            padding: 30px 18px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .register-page {
+            animation: none;
+        }
+
+        .register-submit,
+        .register-field input {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="register-page">
+    <aside class="register-side">
+        <div class="register-brand">
+            <div class="register-brand-icon" aria-hidden="true">🛡️</div>
+            <div>
+                <div class="register-brand-name">Trust<span>Vault</span></div>
+                <small>YOUR SPACE. YOUR SECURITY.</small>
+            </div>
+        </div>
+
+        <div class="register-side-content">
+            <div class="register-eyebrow">✦ CREATE YOUR SECURE SPACE</div>
+
+            <h1>Your files.<br><span>Your future.</span></h1>
+
+            <p>
+                Create your TrustVault account to organize your important
+                documents in one place. Your account helps keep your files
+                separate from other users' documents.
+            </p>
+
+            <div class="register-steps">
+                <div class="register-step">
+                    <span class="register-step-number">1</span>
+                    <div>
+                        <strong>Create your account</strong>
+                        Enter your name, email, and password.
+                    </div>
+                </div>
+
+                <div class="register-step">
+                    <span class="register-step-number">2</span>
+                    <div>
+                        <strong>Upload your documents</strong>
+                        Add supported files to your personal vault.
+                    </div>
+                </div>
+
+                <div class="register-step">
+                    <span class="register-step-number">3</span>
+                    <div>
+                        <strong>Manage your files</strong>
+                        View your documents and recorded activity.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-side-footer">
+            🛡️ &nbsp; Your space. Your security.
+        </div>
+    </aside>
+
+    <section class="register-form-side">
+        <div class="register-form-header">
+            <div class="register-eyebrow">WELCOME TO TRUSTVAULT</div>
+            <h2>Create Account</h2>
+            <p>Fill in the details below to get started.</p>
+        </div>
+
+        <form class="register-form" method="POST"
+              action="{{ url_for('register') }}">
+
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="register-field">
+                <label for="name">Full Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <div class="register-field">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="register-field">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Create a strong password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    required
+                >
+                <span class="register-field-hint">
+                    Use at least 8 characters. Choose a password you do not use elsewhere.
+                </span>
+            </div>
+
+            <button class="register-submit" type="submit">
+                Create My Account &nbsp; →
+            </button>
+        </form>
+
+        <div class="register-login-link">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Sign in here</a>
+        </div>
+
+        <div class="register-security-note">
+            <span aria-hidden="true">🔐</span>
+            <div>
+                <strong>Your security matters.</strong><br>
+                TrustVault uses account-based access controls to help keep
+                each user's documents private.
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}

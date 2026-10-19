@@ -1,95 +1,742 @@
 
 {% extends "base.html" %}
 
-{% block title %}Dashboard | TrustVault{% endblock %}
+{% block title %}My Vault | TrustVault{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <h1>Your TrustVault Dashboard</h1>
-    <p>Welcome, {{ current_user.name }}.</p>
-    <p class="muted">Manage your documents securely.</p>
-</section>
 
-<section class="card" style="margin-top:24px;">
-    <h2>Upload a Document</h2>
-    <p class="muted">
-        Supported types: PDF, TXT, PNG, JPG, JPEG.
-        Maximum size: 5 MB.
-    </p>
+<style>
+    .vault-page {
+        width: 100%;
+        max-width: 1250px;
+        margin: 0 auto;
+        animation: vaultAppear 0.5s ease both;
+    }
 
-    <form method="POST"
-          action="{{ url_for('upload_document') }}"
-          enctype="multipart/form-data">
+    .vault-hero {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: clamp(25px, 4vw, 48px);
+        overflow: hidden;
+        border: 1px solid rgba(196, 243, 91, 0.23);
+        border-radius: 24px;
+        background:
+            radial-gradient(circle at 85% 20%, rgba(196, 243, 91, 0.12), transparent 32%),
+            linear-gradient(135deg, #14392b, #0b2119);
+    }
 
-        <input type="hidden" name="csrf_token"
-               value="{{ csrf_token() }}">
+    .vault-hero-content {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+    }
 
-        <label for="document">Choose a file</label>
-        <input
-            type="file"
-            id="document"
-            name="document"
-            accept=".pdf,.txt,.png,.jpg,.jpeg"
-            required
-        >
+    .vault-eyebrow {
+        display: inline-block;
+        margin-bottom: 12px;
+        color: #c4f35b;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 1.7px;
+    }
 
-        <button class="button" type="submit">
-            Upload Document
-        </button>
-    </form>
-</section>
+    .vault-hero h1 {
+        margin: 0 0 13px;
+        color: #f0fdf4;
+        font-size: clamp(30px, 4vw, 47px);
+        font-weight: 900;
+        line-height: 1.18;
+        letter-spacing: -1.2px;
+        overflow-wrap: anywhere;
+    }
 
-<section class="card" style="margin-top:24px;">
-    <h2>My Documents</h2>
+    .vault-hero h1 span {
+        color: #c4f35b;
+    }
 
-    {% if documents %}
-        <ul>
-            {% for document in documents %}
-                <li style="margin-bottom:16px;">
-                    <strong>{{ document.original_name }}</strong>
-                    <span class="muted">
-                        — Uploaded {{ document.uploaded_at }}
-                    </span>
-                    <br>
-                    <a href="{{ url_for(
-                        'download_document',
-                        document_id=document.id
-                    ) }}">Download</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="muted">
-            You have not uploaded any documents yet.
+    .vault-hero p {
+        max-width: 600px;
+        margin: 0;
+        color: #a7c4b5;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+    .vault-hero-icon {
+        display: grid;
+        place-items: center;
+        width: 105px;
+        height: 105px;
+        flex-shrink: 0;
+        border: 1px solid rgba(196, 243, 91, 0.3);
+        border-radius: 28px;
+        background: rgba(196, 243, 91, 0.07);
+        font-size: 51px;
+        animation: shieldFloat 4s ease-in-out infinite;
+    }
+
+    /* Overview cards */
+
+    .vault-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin: 24px 0;
+    }
+
+    .vault-stat {
+        min-width: 0;
+        padding: 23px;
+        border: 1px solid rgba(196, 243, 91, 0.17);
+        border-radius: 18px;
+        background: linear-gradient(145deg, #14392b, #0d281e);
+        transition: transform 0.25s ease,
+                    border-color 0.25s ease,
+                    box-shadow 0.25s ease;
+    }
+
+    .vault-stat:hover {
+        transform: translateY(-5px);
+        border-color: #c4f35b;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    .vault-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 17px;
+    }
+
+    .vault-stat-icon {
+        display: grid;
+        place-items: center;
+        width: 45px;
+        height: 45px;
+        flex-shrink: 0;
+        border: 1px solid rgba(196, 243, 91, 0.2);
+        border-radius: 13px;
+        background: rgba(196, 243, 91, 0.07);
+        font-size: 22px;
+    }
+
+    .vault-stat h2 {
+        margin: 0 0 7px;
+        color: #f0fdf4;
+        font-size: 17px;
+    }
+
+    .vault-stat p {
+        margin: 0;
+        color: #a7c4b5;
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    .vault-stat-count {
+        color: #c4f35b;
+        font-size: 28px;
+        font-weight: 900;
+    }
+
+    .vault-stat a {
+        display: inline-block;
+        margin-top: 15px;
+        color: #c4f35b;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .vault-stat a:hover {
+        text-decoration: underline;
+    }
+
+    /* Shared panels */
+
+    .vault-panel {
+        margin-top: 24px;
+        padding: clamp(20px, 3vw, 30px);
+        border: 1px solid rgba(196, 243, 91, 0.17);
+        border-radius: 20px;
+        background: linear-gradient(145deg, #102f23, #0d281e);
+        animation: panelAppear 0.55s ease both;
+    }
+
+    .vault-panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 8px;
+    }
+
+    .vault-panel-heading h2 {
+        margin: 0;
+        color: #f0fdf4;
+        font-size: clamp(20px, 2.5vw, 25px);
+    }
+
+    .vault-panel-description {
+        margin: 8px 0 22px;
+        color: #a7c4b5;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    /* Upload area */
+
+    .vault-upload-box {
+        padding: 23px;
+        border: 1px dashed rgba(196, 243, 91, 0.38);
+        border-radius: 16px;
+        background: rgba(7, 27, 20, 0.4);
+        transition: border-color 0.25s ease,
+                    background 0.25s ease;
+    }
+
+    .vault-upload-box:focus-within {
+        border-color: #c4f35b;
+        background: rgba(20, 57, 43, 0.65);
+    }
+
+    .vault-upload-form {
+        display: flex;
+        align-items: flex-end;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .vault-file-field {
+        display: flex;
+        flex: 1 1 280px;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .vault-file-field label {
+        color: #f0fdf4;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .vault-file-input {
+        width: 100%;
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid rgba(196, 243, 91, 0.2);
+        border-radius: 10px;
+        background: #071b14;
+        color: #a7c4b5;
+        font-family: inherit;
+        font-size: 12px;
+    }
+
+    .vault-file-input:focus-visible {
+        outline: 2px solid #34d399;
+        outline-offset: 3px;
+    }
+
+    .vault-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 12px 20px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        background: #c4f35b;
+        color: #071b14;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease,
+                    box-shadow 0.2s ease,
+                    background 0.2s ease;
+    }
+
+    .vault-button:hover {
+        transform: translateY(-2px);
+        background: #d5ff78;
+        color: #071b14;
+        box-shadow: 0 8px 20px rgba(196, 243, 91, 0.13);
+    }
+
+    .vault-button-outline {
+        border-color: rgba(196, 243, 91, 0.25);
+        background: #14392b;
+        color: #f0fdf4;
+    }
+
+    .vault-button-outline:hover {
+        border-color: #c4f35b;
+        background: #14392b;
+        color: #c4f35b;
+    }
+
+    /* Document list */
+
+    .vault-document-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .vault-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 17px;
+        border: 1px solid rgba(196, 243, 91, 0.14);
+        border-radius: 14px;
+        background: rgba(7, 27, 20, 0.48);
+        transition: transform 0.22s ease,
+                    border-color 0.22s ease,
+                    background 0.22s ease;
+    }
+
+    .vault-document:hover {
+        transform: translateX(3px);
+        border-color: rgba(196, 243, 91, 0.45);
+        background: rgba(20, 57, 43, 0.7);
+    }
+
+    .vault-document-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .vault-document-icon {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border: 1px solid rgba(196, 243, 91, 0.17);
+        border-radius: 12px;
+        background: rgba(196, 243, 91, 0.07);
+        font-size: 22px;
+    }
+
+    .vault-document-name {
+        margin: 0 0 5px;
+        color: #f0fdf4;
+        font-size: 13px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .vault-document-date {
+        margin: 0;
+        color: #a7c4b5;
+        font-size: 11px;
+    }
+
+    .vault-empty {
+        padding: 35px 20px;
+        border: 1px dashed rgba(196, 243, 91, 0.2);
+        border-radius: 15px;
+        text-align: center;
+    }
+
+    .vault-empty-icon {
+        margin-bottom: 12px;
+        font-size: 38px;
+    }
+
+    .vault-empty h3 {
+        margin: 0 0 8px;
+        color: #f0fdf4;
+    }
+
+    .vault-empty p {
+        margin: 0;
+        color: #a7c4b5;
+        font-size: 13px;
+    }
+
+    /* Security information */
+
+    .vault-security {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-top: 24px;
+        padding: 22px;
+        border: 1px solid rgba(196, 243, 91, 0.2);
+        border-radius: 17px;
+        background: rgba(196, 243, 91, 0.04);
+    }
+
+    .vault-security-icon {
+        font-size: 27px;
+        flex-shrink: 0;
+    }
+
+    .vault-security h3 {
+        margin: 0 0 7px;
+        color: #f0fdf4;
+        font-size: 16px;
+    }
+
+    .vault-security p {
+        margin: 0;
+        color: #a7c4b5;
+        font-size: 12px;
+        line-height: 1.9;
+    }
+
+    .vault-security-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .vault-security-actions form {
+        margin: 0;
+    }
+
+    @keyframes vaultAppear {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes panelAppear {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes shieldFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-7px);
+        }
+    }
+
+    @media (max-width: 800px) {
+        .vault-hero {
+            align-items: flex-start;
+            padding: 27px;
+        }
+
+        .vault-hero-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            font-size: 36px;
+        }
+
+        .vault-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+        }
+
+        .vault-stat {
+            padding: 19px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .vault-hero {
+            flex-direction: column-reverse;
+            gap: 20px;
+            padding: 23px 20px;
+        }
+
+        .vault-hero-icon {
+            width: 59px;
+            height: 59px;
+            border-radius: 17px;
+            font-size: 30px;
+        }
+
+        .vault-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .vault-stat {
+            padding: 20px;
+        }
+
+        .vault-panel {
+            padding: 19px;
+        }
+
+        .vault-upload-box {
+            padding: 15px;
+        }
+
+        .vault-upload-form {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .vault-upload-form .vault-button {
+            width: 100%;
+        }
+
+        .vault-document {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .vault-document-info {
+            width: 100%;
+        }
+
+        .vault-document .vault-button {
+            width: 100%;
+        }
+
+        .vault-security {
+            padding: 17px;
+        }
+
+        .vault-security-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .vault-security-actions .vault-button {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .vault-page,
+        .vault-panel,
+        .vault-hero-icon {
+            animation: none;
+        }
+
+        .vault-stat,
+        .vault-document,
+        .vault-button {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="vault-page">
+
+    <!-- Welcome section -->
+    <section class="vault-hero">
+        <div class="vault-hero-content">
+            <span class="vault-eyebrow">YOUR PERSONAL WORKSPACE</span>
+
+            <h1>Welcome to<br><span>your vault, {{ current_user.name }}!</span></h1>
+
+            <p>
+                Your documents, all in one place. Upload a file, find your
+                documents below, or review your account activity whenever
+                you need to.
+            </p>
+        </div>
+
+        <div class="vault-hero-icon" aria-hidden="true">🛡️</div>
+    </section>
+
+    <!-- Overview cards -->
+    <section class="vault-stats">
+
+        <article class="vault-stat">
+            <div class="vault-stat-top">
+                <div class="vault-stat-icon" aria-hidden="true">📁</div>
+                <span class="vault-stat-count">{{ documents|length }}</span>
+            </div>
+
+            <h2>My Documents</h2>
+            <p>
+                {% if documents %}
+                    You have {{ documents|length }} document(s) stored in your vault.
+                {% else %}
+                    You haven't uploaded any documents yet.
+                {% endif %}
+            </p>
+        </article>
+
+        <article class="vault-stat">
+            <div class="vault-stat-top">
+                <div class="vault-stat-icon" aria-hidden="true">🔐</div>
+                <span class="vault-stat-count">01</span>
+            </div>
+
+            <h2>Private Access</h2>
+            <p>
+                Your account can access its own documents, with ownership
+                checks before downloads.
+            </p>
+        </article>
+
+        <article class="vault-stat">
+            <div class="vault-stat-top">
+                <div class="vault-stat-icon" aria-hidden="true">📋</div>
+                <span class="vault-stat-count">↗</span>
+            </div>
+
+            <h2>Activity History</h2>
+            <p>
+                Review security events recorded for your account.
+            </p>
+
+            <a href="{{ url_for('audit') }}">View activity history →</a>
+        </article>
+
+    </section>
+
+    <!-- Upload section -->
+    <section class="vault-panel">
+        <div class="vault-panel-heading">
+            <h2>Upload a Document</h2>
+            <span class="vault-stat-icon" aria-hidden="true">☁️</span>
+        </div>
+
+        <p class="vault-panel-description">
+            Choose a file from your computer and add it to your personal vault.
+            Supported formats: PDF, TXT, PNG, JPG, JPEG. Maximum size: 5 MB.
         </p>
-    {% endif %}
-</section>
 
-<section class="card" style="margin-top:24px;">
-    <h2>Access Control</h2>
-    <p class="muted">
-        Downloads are checked against the logged-in user's ownership.
-    </p>
+        <div class="vault-upload-box">
+            <form
+                class="vault-upload-form"
+                method="POST"
+                action="{{ url_for('upload_document') }}"
+                enctype="multipart/form-data">
 
-    <h2>Audit Trail</h2>
-    <p class="muted">
-        Review security events associated with your account.
-    </p>
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
-    <a class="button" href="{{ url_for('audit') }}">
-        View Audit Trail
-    </a>
+                <div class="vault-file-field">
+                    <label for="document">Choose your document</label>
 
-    <form method="POST"
-          action="{{ url_for('logout') }}"
-          style="margin-top:24px;">
+                    <input
+                        class="vault-file-input"
+                        type="file"
+                        id="document"
+                        name="document"
+                        accept=".pdf,.txt,.png,.jpg,.jpeg"
+                        required>
+                </div>
 
-        <input type="hidden" name="csrf_token"
-               value="{{ csrf_token() }}">
+                <button class="vault-button" type="submit">
+                    ⬆ Upload Document
+                </button>
+            </form>
+        </div>
+    </section>
 
-        <button class="button secondary" type="submit">
-            Logout
-        </button>
-    </form>
-</section>
+    <!-- Documents section -->
+    <section class="vault-panel">
+        <div class="vault-panel-heading">
+            <h2>My Documents</h2>
+            <span class="vault-stat-icon" aria-hidden="true">📄</span>
+        </div>
+
+        <p class="vault-panel-description">
+            Your uploaded files appear here. Select Download when you need a file.
+        </p>
+
+        {% if documents %}
+            <div class="vault-document-list">
+                {% for document in documents %}
+                    <article class="vault-document">
+
+                        <div class="vault-document-info">
+                            <div class="vault-document-icon" aria-hidden="true">
+                                📄
+                            </div>
+
+                            <div>
+                                <p class="vault-document-name">
+                                    {{ document.original_name }}
+                                </p>
+
+                                <p class="vault-document-date">
+                                    Uploaded {{ document.uploaded_at }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <a
+                            class="vault-button vault-button-outline"
+                            href="{{ url_for('download_document', document_id=document.id) }}">
+                            ↓ Download
+                        </a>
+
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="vault-empty">
+                <div class="vault-empty-icon" aria-hidden="true">📂</div>
+                <h3>Your vault is empty</h3>
+                <p>
+                    Choose a document in the upload section above to get started.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Security section -->
+    <section class="vault-security">
+        <div class="vault-security-icon" aria-hidden="true">🛡️</div>
+
+        <div>
+            <h3>Your Security Matters</h3>
+
+            <p>
+                TrustVault checks document ownership before downloads and
+                records security-related events in your activity history.
+            </p>
+
+            <div class="vault-security-actions">
+                <a class="vault-button" href="{{ url_for('audit') }}">
+                    View Activity History →
+                </a>
+
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
+
+                    <button
+                        class="vault-button vault-button-outline"
+                        type="submit">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+</div>
+
 {% endblock %}
