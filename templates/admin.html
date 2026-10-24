@@ -1,0 +1,20 @@
+TrustVault Admin Dashboard
+Read-only overview of users, documents, and recent audit activity.
+
+Back to my dashboard
+
+Registered users ({{ users|length }})
+{% for user in users %} {% else %} {% endfor %}
+ID	Name	Email	Role
+{{ user.id }}	{{ user.name }}	{{ user.email }}	{{ user.role }}
+No users found.
+Documents ({{ documents|length }})
+{% for document in documents %} {% else %} {% endfor %}
+ID	Document name	Owner ID	Uploaded at
+{{ document.id }}	{{ document.original_name }}	{{ document.owner_id }}	{{ document.uploaded_at }}
+No documents found.
+Recent audit events (up to 100)
+{% for log in audit_logs %} {% else %} {% endfor %}
+Date	User ID	Event	Document ID	Details
+{{ log.created_at }}	{{ log.user_id if log.user_id is not none else 'System/unknown' }}	{{ log.event_type }}	{{ log.document_id if log.document_id is not none else '-' }}	{{ log.details }}
+No audit events found.
